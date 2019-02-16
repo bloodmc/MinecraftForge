@@ -109,17 +109,24 @@
      }
  
      public boolean func_73056_e()
-@@ -375,7 +388,7 @@
+@@ -374,20 +387,20 @@
+             boolean flag = this.func_72896_J();
              boolean flag1 = this.func_72911_I();
              this.field_72984_F.func_76320_a("pollingChunks");
- 
+-
 -            for (Iterator<Chunk> iterator = this.field_73063_M.func_187300_b(); iterator.hasNext(); this.field_72984_F.func_76319_b())
-+            for (Iterator<Chunk> iterator = getPersistentChunkIterable(this.field_73063_M.func_187300_b()); iterator.hasNext(); this.field_72984_F.func_76319_b())
++            for (Chunk chunk : this.func_72863_F().func_189548_a())
              {
++                if (!chunk.canTick()) continue;
                  this.field_72984_F.func_76320_a("getChunk");
-                 Chunk chunk = iterator.next();
-@@ -387,7 +400,7 @@
+-                Chunk chunk = iterator.next();
+                 int j = chunk.field_76635_g * 16;
+                 int k = chunk.field_76647_h * 16;
+                 this.field_72984_F.func_76318_c("checkNextLight");
+                 chunk.func_76594_o();
+                 this.field_72984_F.func_76318_c("tickChunk");
                  chunk.func_150804_b(false);
++                if (!chunk.areNeighborsLoaded()) continue;
                  this.field_72984_F.func_76318_c("thunder");
  
 -                if (flag && flag1 && this.field_73012_v.nextInt(100000) == 0)

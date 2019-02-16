@@ -794,11 +794,11 @@ public class ForgeChunkManager
      * It is safe to force the chunk several times for a ticket, it will not generate duplication or change the ordering.
      *
      * @param ticket The ticket registering the chunk
-     * @param chunk The chunk to force
+     * @param chunkPos The chunk pos to force
      */
-    public static void forceChunk(Ticket ticket, ChunkPos chunk)
+    public static void forceChunk(Ticket ticket, ChunkPos chunkPos)
     {
-        if (ticket == null || chunk == null)
+        if (ticket == null || chunkPos == null)
         {
             return;
         }
@@ -811,15 +811,23 @@ public class ForgeChunkManager
             FMLLog.log.fatal("The mod {} attempted to force load a chunk with an invalid ticket. This is not permitted.", ticket.modId);
             return;
         }
-        ticket.requestedChunks.add(chunk);
-        MinecraftForge.EVENT_BUS.post(new ForceChunkEvent(ticket, chunk));
+        ticket.requestedChunks.add(chunkPos);
+        MinecraftForge.EVENT_BUS.post(new ForceChunkEvent(ticket, chunkPos));
 
-        ImmutableSetMultimap<ChunkPos, Ticket> newMap = ImmutableSetMultimap.<ChunkPos,Ticket>builder().putAll(forcedChunks.get(ticket.world)).put(chunk, ticket).build();
+        ImmutableSetMultimap<ChunkPos, Ticket> newMap = ImmutableSetMultimap.<ChunkPos,Ticket>builder().putAll(forcedChunks.get(ticket.world)).put(chunkPos, ticket).build();
         forcedChunks.put(ticket.world, newMap);
         if (ticket.maxDepth > 0 && ticket.requestedChunks.size() > ticket.maxDepth)
         {
             ChunkPos removed = ticket.requestedChunks.iterator().next();
             unforceChunk(ticket,removed);
+        } 
+        else
+        {
+            final Chunk chunk = ticket.world.getChunkProvider().getLoadedChunk(chunkPos.x, chunkPos.z, false);
+            if (chunk != null)
+            {
+                chunk.persisted = true;
+            }
         }
     }
 
@@ -844,20 +852,25 @@ public class ForgeChunkManager
      * Unforce the supplied chunk, allowing it to be unloaded and stop ticking.
      *
      * @param ticket The ticket holding the chunk
-     * @param chunk The chunk to unforce
+     * @param chunkPos The chunk pos to unforce
      */
-    public static void unforceChunk(Ticket ticket, ChunkPos chunk)
+    public static void unforceChunk(Ticket ticket, ChunkPos chunkPos)
     {
-        if (ticket == null || chunk == null)
+        if (ticket == null || chunkPos == null)
         {
             return;
         }
-        ticket.requestedChunks.remove(chunk);
-        MinecraftForge.EVENT_BUS.post(new UnforceChunkEvent(ticket, chunk));
+        ticket.requestedChunks.remove(chunkPos);
+        MinecraftForge.EVENT_BUS.post(new UnforceChunkEvent(ticket, chunkPos));
         LinkedHashMultimap<ChunkPos, Ticket> copy = LinkedHashMultimap.create(forcedChunks.get(ticket.world));
-        copy.remove(chunk, ticket);
+        copy.remove(chunkPos, ticket);
         ImmutableSetMultimap<ChunkPos, Ticket> newMap = ImmutableSetMultimap.copyOf(copy);
         forcedChunks.put(ticket.world,newMap);
+        final Chunk chunk = ticket.world.getChunkProvider().getLoadedChunk(chunkPos.x, chunkPos.z, false);
+        if (chunk != null)
+        {
+            chunk.persisted = false;
+        }
     }
 
     static void loadConfiguration()

@@ -1,0 +1,19 @@
+--- ../src-base/minecraft/net/minecraft/server/management/PlayerChunkMap.java
++++ ../src-work/minecraft/net/minecraft/server/management/PlayerChunkMap.java
+@@ -23,7 +23,7 @@
+ 
+ public class PlayerChunkMap
+ {
+-    private static final Predicate<EntityPlayerMP> field_187308_a = new Predicate<EntityPlayerMP>()
++    public static final Predicate<EntityPlayerMP> field_187308_a = new Predicate<EntityPlayerMP>()
+     {
+         public boolean apply(@Nullable EntityPlayerMP p_apply_1_)
+         {
+@@ -460,6 +460,7 @@
+ 
+         if (chunk != null)
+         {
++            chunk.playerChunkMapEntry = null;
+             this.func_72688_a().func_72863_F().func_189549_a(chunk);
+         }
+     }

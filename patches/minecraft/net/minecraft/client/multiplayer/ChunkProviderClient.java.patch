@@ -1,6 +1,21 @@
 --- ../src-base/minecraft/net/minecraft/client/multiplayer/ChunkProviderClient.java
 +++ ../src-work/minecraft/net/minecraft/client/multiplayer/ChunkProviderClient.java
-@@ -60,6 +60,7 @@
+@@ -50,7 +50,14 @@
+         this.field_73236_b.remove(ChunkPos.func_77272_a(p_73234_1_, p_73234_2_));
+     }
+ 
++    // This is identical to getLoadedChunk on client
+     @Nullable
++    @Override
++    public Chunk getLoadedChunk(int x, int z, boolean markActive) {
++        return (Chunk)this.field_73236_b.get(ChunkPos.func_77272_a(x, z));
++    }
++
++    @Nullable
+     public Chunk func_186026_b(int p_186026_1_, int p_186026_2_)
+     {
+         return (Chunk)this.field_73236_b.get(ChunkPos.func_77272_a(p_186026_1_, p_186026_2_));
+@@ -60,6 +67,7 @@
      {
          Chunk chunk = new Chunk(this.field_73235_d, p_73158_1_, p_73158_2_);
          this.field_73236_b.put(ChunkPos.func_77272_a(p_73158_1_, p_73158_2_), chunk);
